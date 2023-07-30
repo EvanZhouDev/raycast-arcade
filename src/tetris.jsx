@@ -11,24 +11,18 @@ export default function Tetris() {
 
   // useEffect(() => setGame(), [piece, board]) -> useEffect(() => setMarkdown(), [game]) -> Renders `markdown`
 
-  let levelG = {
-    test: 0,
-    1: 0.01667,
-    2: 0.021017,
-    3: 0.026977,
-    4: 0.035256,
-    5: 0.04693,
-    6: 0.06361,
-    7: 0.0879,
-    8: 0.1236,
-    9: 0.1775,
-    10: 0.2598,
-    11: 0.388,
-    12: 0.59,
-    13: 0.92,
-    14: 1.46,
-    15: 2.36,
-  };
+  const Status = {
+    PLAYING: "playing",
+    PAUSED: "paused",
+    LOSE: "lose",
+  }
+
+  let levelG = [
+    0 // Level 0 doesn't exist...
+  ]
+  for (let i = 1; i <= 15; i++) {
+    levelG.push(Math.round((0.05 + (i - 1) * (0.25 - 0.05) / 14) * 100) / 100)
+  }
 
   let pieces = [
     [
@@ -108,7 +102,8 @@ export default function Tetris() {
 
   let [points, setPoints] = useState(0);
   let [lines, setLines] = useState(0);
-  let [level, setLevel] = useState(1);
+  let [level, setLevel] = useState(15);
+  let status = useRef(Status.PLAYING)
 
   useEffect(() => {
     setLevel(Math.floor(lines / 10) + 1)
@@ -141,50 +136,85 @@ export default function Tetris() {
     setLines(prevLines => prevLines += lines)
     switch (lines) {
       case 1:
-        setPoints(pts => pts + 100)
+        setPoints(pts => pts + 100 * level)
         break;
       case 2:
-        setPoints(pts => pts + 300)
+        setPoints(pts => pts + 300 * level)
         break;
       case 3:
-        setPoints(pts => pts + 500)
+        setPoints(pts => pts + 500 * level)
         break;
       case 4:
-        setPoints(pts => pts + 800)
+        setPoints(pts => pts + 800 * level)
         break;
       default:
         break;
     }
   }
+  let [isTicking, setTicking] = useState(true);
 
   let tick = () => {
-    setPiece((original) => {
-      if (!hasCollision({ ...original, y: original.y + 1 })) {
-        let newPiece = JSON.parse(JSON.stringify(original));
-        newPiece.y++;
-        return newPiece;
-      } else {
-        let newBoard = JSON.parse(JSON.stringify(board.current));
-        let { x, y, shape } = original;
-        for (let i = 0; i < shape.length; i++) {
-          for (let j = 0; j < shape[0].length; j++) {
-            if (shape[i][j] !== 0 && newBoard[y + i]) {
-              newBoard[y + i][x + j] = shape[i][j];
+    if (status.current === Status.PLAYING) {
+      setTicking(true);
+      setPiece((original) => {
+        if (!hasCollision({ ...original, y: original.y + 1 })) {
+          let newPiece = JSON.parse(JSON.stringify(original));
+          newPiece.y++;
+          return newPiece;
+        } else {
+          if (original.y === 0) {
+            setMarkdown(`
+\`\`\`
+
+│          │
+│          │
+│          │
+│          │
+│   GAME   │   PRESS ENTER
+│   OVER   │   TO RESTART
+│          │
+│          │
+│          │
+│          │
+╰──TETRIS──╯
+\`\`\`
+            `)
+            status.current = Status.LOSE
+            return original;
+          } else {
+            let newBoard = JSON.parse(JSON.stringify(board.current));
+            let { x, y, shape } = original;
+            for (let i = 0; i < shape.length; i++) {
+              for (let j = 0; j < shape[0].length; j++) {
+                if (shape[i][j] !== 0 && newBoard[y + i]) {
+                  newBoard[y + i][x + j] = shape[i][j];
+                }
+              }
             }
+            board.current = newBoard
+
+            let newPiece = generatePiece()
+
+            handleLineClear();
+            return newPiece;
           }
         }
-        board.current = newBoard
-
-        let newPiece = generatePiece()
-
-        handleLineClear();
-        return newPiece;
-      }
-    })
-    setTimeout(() => {
-      tick()
-    }, speed.current)
+      })
+    }
+    if (status.current === Status.PLAYING) {
+      setTimeout(() => {
+        tick()
+      }, speed.current)
+    } else {
+      setTicking(false)
+    }
   }
+
+  useEffect(() => {
+    if (status.current === Status.PLAYING && !isTicking) {
+      tick()
+    }
+  }, [status.current])
 
 
 
@@ -323,6 +353,8 @@ export default function Tetris() {
     }
   }
 
+  let [selectedTab, setSelectedTab] = useState("game")
+
   return (
     <List
       searchText=""
@@ -331,12 +363,41 @@ export default function Tetris() {
         handleKeyDown(key)
       }}
       isShowingDetail={true}
+      selectedItemId={selectedTab}
+      onSelectionChange={(id) => {
+        setSelectedTab(id);
+        if (id === "help") {
+          status.current = Status.PAUSED;
+        }
+        if (id === "game") {
+          status.current = Status.PLAYING;
+        }
+      }}
     >
       <List.Item
         title="Tetris"
+        id="game"
         detail={<List.Item.Detail markdown={markdown} />}
         actions={
           <ActionPanel>
+            <Action
+              title={status.current === Status.PLAYING ? "Pause" : "Restart"}
+              onAction={() => {
+                if (status.current === Status.PLAYING) {
+                  setSelectedTab("help")
+                  status.current = Status.PAUSED
+                } else {
+                  status.current = Status.PLAYING
+                  board.current = generateNewGrid();
+                  setPiece(generatePiece());
+                  setGame(generateNewGrid());
+                  setPoints(0);
+                  setLines(0);
+                  setStartTime(Date.now());
+                  setLevel(0);
+                }
+              }}
+            />
             <Action
               title="Move Piece Left"
               shortcut={{ modifiers: ["shift"], key: "a" }}
@@ -356,6 +417,23 @@ export default function Tetris() {
               title="Rotate Piece"
               shortcut={{ modifiers: ["shift"], key: "w" }}
               onAction={() => handleKeyDown("w")}
+            />
+          </ActionPanel>
+        }
+      >
+      </List.Item>
+      <List.Item
+        title="Help / Pause"
+        id="help"
+        detail={<List.Item.Detail markdown={`# ⏸ GAME PAUSED\nPress enter to return to the game.\n# Controls\nAfter focusing your cursor in the top search box, simply use WASD and Space to navigate the piece.\n- Using \`A\`/\`D\` moves the piece left or right\n- Using \`W\` rotates the piece clockwise\n- Using \`S\` moves the piece down\n- Space drops the piece completely.\n> Key repeats are disabled by default on MacOS. You can either turn them on, or hold \`Shift\` with the respective control to enable repeat.\n# Rules\n If you do not know how to play Tetris, read about it on Wikipedia [here](https://en.wikipedia.org/wiki/Tetris).`} />}
+        actions={
+          <ActionPanel>
+            <Action
+              title="Unpause"
+              onAction={() => {
+                setSelectedTab("game")
+                status.current = Status.PLAYING
+              }}
             />
           </ActionPanel>
         }
