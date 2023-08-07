@@ -289,4 +289,3 @@ export default function ChromeDino() {
     ></Detail>
   );
 }
-
