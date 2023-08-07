@@ -1,4 +1,4 @@
-import { Detail, ActionPanel, Action, open } from "@raycast/api";
+import { Detail, ActionPanel, Action } from "@raycast/api";
 import { useEffect, useState, useRef } from "react";
 
 export default function ChromeDino() {
@@ -95,7 +95,7 @@ export default function ChromeDino() {
   let [markdown, setMarkdown] = useState(
     Array(17)
       .fill()
-      .map((_) => Array(92).fill(" "))
+      .map(() => Array(92).fill(" "))
   );
   let status = useRef(Status.PLAYING);
   let time = useRef(0);
@@ -160,7 +160,7 @@ export default function ChromeDino() {
 
       let newMarkdown = Array(17)
         .fill()
-        .map((_) => Array(92).fill(" "));
+        .map(() => Array(92).fill(" "));
       newMarkdown[16] = Array(92).fill("_");
 
       for (let i = 0; i < activeCacti.current.length; i++) {
