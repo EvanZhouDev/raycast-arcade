@@ -121,24 +121,18 @@ export default function ChromeDino() {
         activeCacti.current.push({
           x: 90,
           shape: cactiShapes[Math.floor(Math.random() * cactiShapes.length)],
-          time: time.current,
+          time: time.current, // ! IMPLMENT TIME
         });
       }
-      if (time.current > 60 && time.current - activeCacti.current.at(-1).time > 40) {
+      console.log(activeCacti.current);
+      if (time.current > 60 && time.current - activeCacti.current.at(-1).time > 20) {
         if (Math.random() < 0.02) {
           activeCacti.current.push({
             x: 90,
             shape: cactiShapes[Math.floor(Math.random() * cactiShapes.length)],
-            time: time.current,
+            time: time.current, // ! IMPLMENT TIME
           });
         }
-      }
-      if (time.current > 60 && time.current - activeCacti.current.at(-1).time > 100) {
-        activeCacti.current.push({
-          x: 90,
-          shape: cactiShapes[Math.floor(Math.random() * cactiShapes.length)],
-          time: time.current,
-        });
       }
 
       if (time.current % 70 === 0) {
