@@ -453,7 +453,7 @@ export default function Tetris() {
                   setPoints(0);
                   setLines(0);
                   setStartTime(Date.now());
-                  setLevel(0);
+                  setLevel(1);
                 }
               }}
             />
