@@ -110,7 +110,6 @@ export default function Wordle() {
   );
   let unlimitedGuessCount = useRef(0);
   let unlimitedTarget = useRef(allowedList[Math.floor(Math.random() * allowedList.length)]);
-  console.log(unlimitedTarget.current)
   let unlimitedHasGuessed = useRef(false);
 
   let [loading, setLoading] = useState(true);
@@ -230,7 +229,6 @@ export default function Wordle() {
       await LocalStorage.setItem("wordleDate", currentDate);
 
       target.current = data.solution;
-      console.log(hasGuessed.current);
       if (!hasGuessed.current) {
         showToast({
           style: Toast.Style.SuccessMessage,
