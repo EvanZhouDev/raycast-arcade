@@ -13,6 +13,7 @@ import {
 import svg64 from "svg64";
 import { useState, useRef } from "react";
 import wordlist from "./wordlist/all.js";
+import allowedList from "./wordlist/allowed.js";
 import { useFetch } from "@raycast/utils";
 
 let Color = {
@@ -36,9 +37,8 @@ function generateRow(rows) {
     } else {
       svgString += `
             <rect x="${width * i + spacing * i}" width="${width}" height="${width}" fill="${color}"/>
-            <text x="${width * i + spacing * i + width / 2}" y="${
-        width - width / 6
-      }" text-anchor="middle" alignment-baseline="middle" class="large" font-size="300" font-weight="bold" fill="white" font-family="Helvetica Neue">${letter}</text>
+            <text x="${width * i + spacing * i + width / 2}" y="${width - width / 6
+        }" text-anchor="middle" alignment-baseline="middle" class="large" font-size="300" font-weight="bold" fill="white" font-family="Helvetica Neue">${letter}</text>
             `;
     }
   }
@@ -47,6 +47,8 @@ function generateRow(rows) {
 }
 
 export default function Wordle() {
+  let [selectedTab, setSelectedTab] = useState("");
+
   let [guess, setGuess] = useState("");
   let [board, setBoard] = useState(
     Array(6)
@@ -63,11 +65,36 @@ export default function Wordle() {
   let guessCount = useRef(0);
   let target = useRef("     ");
   let hasGuessed = useRef(false);
+
+  let [unlimitedBoard, setUnlimitedBoard] = useState(
+    Array(6)
+      .fill()
+      .map(() =>
+        Array(5)
+          .fill()
+          .map(() => ({
+            letter: "",
+            color: Color.GRAY,
+          }))
+      )
+  );
+  let unlimitedGuessCount = useRef(0);
+  let unlimitedTarget = useRef(allowedList[Math.floor(Math.random() * allowedList.length)]);
+  let unlimitedHasGuessed = useRef(false);
+
+
+
+
+
+
+
   let [loading, setLoading] = useState(true);
   let [dailyWordleTitle, setDailyWordleTitle] = useState("Daily Wordle");
   let currentDate = new Date().toISOString().split("T")[0];
   let launchDays = useRef("");
   let previousTime = useRef();
+
+
 
   const updateDailyWordleTitle = () => {
     if (!hasGuessed.current) {
@@ -98,7 +125,19 @@ export default function Wordle() {
         let storeBoard = await LocalStorage.getItem("wordleBoard");
         let storeGuessCount = await LocalStorage.getItem("wordleGuessCount");
         let storeHasGuessed = await LocalStorage.getItem("wordleHasGuessed");
-        if (storeBoard && storeGuessCount && storeHasGuessed) {
+
+
+        let storeUnlimitedBoard = await LocalStorage.getItem("wordleUnlimitedBoard");
+        let storeUnlimitedGuessCount = await LocalStorage.getItem("wordleUnlimitedGuessCount");
+        let storeUnlimitedHasGuessed = await LocalStorage.getItem("wordleUnlimitedHasGuessed");
+
+        if (storeUnlimitedBoard && storeGuessCount !== undefined && storeHasGuessed !== undefined) {
+          setUnlimitedBoard(JSON.parse(storeUnlimitedBoard));
+          unlimitedGuessCount.current = JSON.parse(storeUnlimitedGuessCount);
+          unlimitedHasGuessed.current = JSON.parse(storeUnlimitedHasGuessed);
+        }
+
+        if (storeBoard && storeGuessCount !== undefined && storeHasGuessed !== undefined) {
           setBoard(JSON.parse(storeBoard));
           guessCount.current = JSON.parse(storeGuessCount);
           hasGuessed.current = JSON.parse(storeHasGuessed);
@@ -119,8 +158,8 @@ export default function Wordle() {
             setLoading(false);
             showToast({
               style: Toast.Style.Success,
-              title: "Congratulations!",
-              message: "You have already guessed the word.",
+              title: "Daily Word Completed!",
+              message: "Try out Wordle Unlimited.",
             });
             return;
           }
@@ -188,7 +227,7 @@ export default function Wordle() {
   };
 
   let submit = () => {
-    if (hasGuessed.current) {
+    if (selectedTab === "daily" ? hasGuessed.current : unlimitedHasGuessed.current) {
       showToast({
         title: "You have already guessed the word!",
       });
@@ -197,9 +236,8 @@ export default function Wordle() {
     if (!loading) {
       let parsedGuess = guess.toLowerCase();
       if (guess.length === 5 && wordlist.includes(parsedGuess)) {
-        guessCount.current++;
         let targetLetterCount = {};
-        for (const letter of target.current) {
+        for (const letter of (selectedTab === "unlimited" ? unlimitedTarget.current : target.current)) {
           targetLetterCount[letter] = (targetLetterCount[letter] || 0) + 1;
         }
 
@@ -207,7 +245,8 @@ export default function Wordle() {
         let correct = 0;
         for (let i = 0; i < parsedGuess.length; i++) {
           const guessedLetter = parsedGuess[i];
-          const targetLetter = target.current[i];
+          let targetLetter = target.current[i];
+          if (selectedTab === "unlimited") targetLetter = unlimitedTarget.current[i]
 
           if (guessedLetter === targetLetter) {
             row.push({
@@ -229,63 +268,124 @@ export default function Wordle() {
             });
           }
         }
-        setBoard((prevBoard) => {
-          let newBoard = structuredClone(prevBoard);
-          for (let i in prevBoard) {
-            if (prevBoard[i][0].letter === "") {
-              newBoard[i] = row;
-              break;
+        if (selectedTab === "unlimited") {
+          unlimitedGuessCount.current++;
+          setUnlimitedBoard((prevBoard) => {
+            let newBoard = structuredClone(prevBoard);
+            for (let i in prevBoard) {
+              if (prevBoard[i][0].letter === "") {
+                newBoard[i] = row;
+                break;
+              }
             }
-          }
 
-          if (correct === 5) {
-            hasGuessed.current = true;
-            let message;
-            updateDailyWordleTitle();
+            if (correct === 5) {
+              unlimitedHasGuessed.current = true;
+              let message;
 
-            switch (guessCount.current) {
-              case 1:
-                message = "Genius";
-                break;
-              case 2:
-                message = "Magnificent";
-                break;
-              case 3:
-                message = "Impressive";
-                break;
-              case 4:
-                message = "Splendid";
-                break;
-              case 5:
-                message = "Great";
-                break;
-              case 6:
-                message = "Phew";
-                break;
-              default:
-                message = "Good Job";
+              switch (unlimitedGuessCount.current) {
+                case 1:
+                  message = "Genius";
+                  break;
+                case 2:
+                  message = "Magnificent";
+                  break;
+                case 3:
+                  message = "Impressive";
+                  break;
+                case 4:
+                  message = "Splendid";
+                  break;
+                case 5:
+                  message = "Great";
+                  break;
+                case 6:
+                  message = "Phew";
+                  break;
+                default:
+                  message = "Good Job";
+              }
+              showToast({
+                style: Toast.Style.Success,
+                title: message,
+              });
             }
-            showToast({
-              style: Toast.Style.Success,
-              title: message,
-            });
-          }
 
-          (async () => {
-            await LocalStorage.setItem("wordleBoard", JSON.stringify(newBoard));
-            await LocalStorage.setItem("wordleGuessCount", JSON.stringify(guessCount.current));
-            await LocalStorage.setItem("wordleHasGuessed", JSON.stringify(hasGuessed.current));
-          })();
+            (async () => {
+              await LocalStorage.setItem("wordleUnlimitedBoard", JSON.stringify(newBoard));
+              await LocalStorage.setItem("wordleUnlimitedGuessCount", JSON.stringify(unlimitedGuessCount.current));
+              await LocalStorage.setItem("wordleUnlimitedHasGuessed", JSON.stringify(unlimitedHasGuessed.current));
+            })();
 
-          if (guessCount.current === 6 && correct !== 5) {
-            showToast({
-              style: Toast.Style.Failure,
-              title: `The word was "${target.current.toLocaleUpperCase()}"`,
-            });
-          }
+            if (unlimitedGuessCount.current === 6 && correct !== 5) {
+              showToast({
+                style: Toast.Style.Failure,
+                title: `The word was "${unlimitedTarget.current.toLocaleUpperCase()}"`,
+              });
+            }
 
-          return newBoard;
-        });
+            return newBoard;
+          });
+        } else {
+          guessCount.current++;
+          setBoard((prevBoard) => {
+            let newBoard = structuredClone(prevBoard);
+            for (let i in prevBoard) {
+              if (prevBoard[i][0].letter === "") {
+                newBoard[i] = row;
+                break;
+              }
+            }
+
+            if (correct === 5) {
+              hasGuessed.current = true;
+              let message;
+              updateDailyWordleTitle();
+
+              switch (guessCount.current) {
+                case 1:
+                  message = "Genius";
+                  break;
+                case 2:
+                  message = "Magnificent";
+                  break;
+                case 3:
+                  message = "Impressive";
+                  break;
+                case 4:
+                  message = "Splendid";
+                  break;
+                case 5:
+                  message = "Great";
+                  break;
+                case 6:
+                  message = "Phew";
+                  break;
+                default:
+                  message = "Good Job";
+              }
+              showToast({
+                style: Toast.Style.Success,
+                title: message,
+              });
+            }
+
+            (async () => {
+              await LocalStorage.setItem("wordleBoard", JSON.stringify(newBoard));
+              await LocalStorage.setItem("wordleGuessCount", JSON.stringify(guessCount.current));
+              await LocalStorage.setItem("wordleHasGuessed", JSON.stringify(hasGuessed.current));
+            })();
+
+            if (guessCount.current === 6 && correct !== 5) {
+              showToast({
+                style: Toast.Style.Failure,
+                title: `The word was "${target.current.toLocaleUpperCase()}"`,
+              });
+            }
+
+            return newBoard;
+          });
+        }
         setGuess("");
       } else {
         if (guess.length < 5) {
@@ -325,7 +425,8 @@ export default function Wordle() {
 
   const share = () => {
     let result = [`Wordle ${launchDays.current} ${!hasGuessed.current ? "X" : guessCount.current}/6\n`];
-    for (let row of board) {
+    if (selectedTab === "unlimited") result = [`Wordle Unlimited ${!unlimitedHasGuessed.current ? "X" : unlimitedGuessCount.current}/6\n`];
+    for (let row of selectedTab === "unlimited" ? unlimitedBoard : board) {
       if (row[0].letter === "") break;
       let rowExport = "";
       for (let cell of row) {
@@ -350,21 +451,62 @@ export default function Wordle() {
     });
   };
 
+  const replay = () => {
+    setUnlimitedBoard(
+      Array(6)
+        .fill()
+        .map(() =>
+          Array(5)
+            .fill()
+            .map(() => ({
+              letter: "",
+              color: Color.GRAY,
+            }))
+        )
+    );
+    unlimitedGuessCount.current = 0;
+    unlimitedTarget.current = allowedList[Math.floor(Math.random() * allowedList.length)];
+    unlimitedHasGuessed.current = false;
+  }
+
   return (
     <List
       isShowingDetail={true}
       onSearchTextChange={updateSearchBar}
       searchText={guess}
       searchBarPlaceholder="Enter your guess here..."
+      selectedItemId={selectedTab}
+      onSelectionChange={setSelectedTab}
     >
       <List.Item
         title={dailyWordleTitle}
         icon={Icon.Calendar}
+        id="daily"
         detail={<List.Item.Detail markdown={generateBoard(board)} />}
         actions={
           <ActionPanel>
             {guessCount.current === 6 || hasGuessed.current ? (
               <Action title="Share" onAction={share} />
+            ) : (
+              <Action title="Submit Guess" onAction={submit} />
+            )}
+          </ActionPanel>
+        }
+      />
+
+
+      <List.Item
+        title={"Wordle Unlimited"}
+        icon={Icon.Repeat}
+        id="unlimited"
+        detail={<List.Item.Detail markdown={generateBoard(unlimitedBoard)} />}
+        actions={
+          <ActionPanel>
+            {unlimitedGuessCount.current === 6 || unlimitedHasGuessed.current ? (
+              <>
+                <Action title="Replay" onAction={replay} />
+                <Action title="Share" onAction={share} />
+              </>
             ) : (
               <Action title="Submit Guess" onAction={submit} />
             )}
