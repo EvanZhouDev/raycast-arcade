@@ -27,6 +27,12 @@
       "title": "Wordle",
       "description": "Play Wordle!",
       "mode": "view"
+    },
+    {
+      "name": "search",
+      "title": "Search Games",
+      "description": "Search for the Raycast Arcade games, all in one place.",
+      "mode": "view"
     }
   ],
   "dependencies": {
