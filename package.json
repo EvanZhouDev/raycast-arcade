@@ -29,6 +29,12 @@
       "mode": "view"
     },
     {
+      "name": "game2048",
+      "title": "2048",
+      "description": "Play classic 2048!",
+      "mode": "view"
+    },
+    {
       "name": "search",
       "title": "Search Games",
       "description": "Search for the Raycast Arcade games, all in one place.",
