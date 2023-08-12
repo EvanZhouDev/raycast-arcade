@@ -37,8 +37,9 @@ function generateRow(rows) {
     } else {
       svgString += `
             <rect x="${width * i + spacing * i}" width="${width}" height="${width}" fill="${color}"/>
-            <text x="${width * i + spacing * i + width / 2}" y="${width - width / 6
-        }" text-anchor="middle" alignment-baseline="middle" class="large" font-size="300" font-weight="bold" fill="white" font-family="Helvetica Neue">${letter}</text>
+            <text x="${width * i + spacing * i + width / 2}" y="${
+        width - width / 6
+      }" text-anchor="middle" alignment-baseline="middle" class="large" font-size="300" font-weight="bold" fill="white" font-family="Helvetica Neue">${letter}</text>
             `;
     }
   }
@@ -59,7 +60,7 @@ export default function Wordle() {
         4: 0,
         5: 0,
         6: 0,
-      }
+      },
     },
     unlimited: {
       played: 0,
@@ -71,14 +72,14 @@ export default function Wordle() {
         4: 0,
         5: 0,
         6: 0,
-      }
-    }
-  })
+      },
+    },
+  });
 
   let [guess, setGuess] = useState("");
 
-  let guessDaily = useRef("")
-  let guessUnlimited = useRef("")
+  let guessDaily = useRef("");
+  let guessUnlimited = useRef("");
 
   let [board, setBoard] = useState(
     Array(6)
@@ -118,8 +119,6 @@ export default function Wordle() {
   let launchDays = useRef("");
   let previousTime = useRef();
 
-
-
   const updateDailyWordleTitle = () => {
     if (!hasGuessed.current) {
       setDailyWordleTitle("Daily Wordle");
@@ -150,7 +149,6 @@ export default function Wordle() {
         let storeGuessCount = await LocalStorage.getItem("wordleGuessCount");
         let storeHasGuessed = await LocalStorage.getItem("wordleHasGuessed");
 
-
         let storeUnlimitedBoard = await LocalStorage.getItem("wordleUnlimitedBoard");
         let storeUnlimitedGuessCount = await LocalStorage.getItem("wordleUnlimitedGuessCount");
         let storeUnlimitedHasGuessed = await LocalStorage.getItem("wordleUnlimitedHasGuessed");
@@ -158,7 +156,7 @@ export default function Wordle() {
         let storeStats = await LocalStorage.getItem("wordleStats");
 
         if (storeStats !== undefined) {
-          setStats(JSON.parse(storeStats))
+          setStats(JSON.parse(storeStats));
         }
 
         if (storeUnlimitedBoard && storeGuessCount !== undefined && storeHasGuessed !== undefined) {
@@ -272,7 +270,7 @@ export default function Wordle() {
       let parsedGuess = guess.toLowerCase();
       if (guess.length === 5 && wordlist.includes(parsedGuess)) {
         let targetLetterCount = {};
-        for (const letter of (selectedTab === "unlimited" ? unlimitedTarget.current : target.current)) {
+        for (const letter of selectedTab === "unlimited" ? unlimitedTarget.current : target.current) {
           targetLetterCount[letter] = (targetLetterCount[letter] || 0) + 1;
         }
 
@@ -281,7 +279,7 @@ export default function Wordle() {
         for (let i = 0; i < parsedGuess.length; i++) {
           const guessedLetter = parsedGuess[i];
           let targetLetter = target.current[i];
-          if (selectedTab === "unlimited") targetLetter = unlimitedTarget.current[i]
+          if (selectedTab === "unlimited") targetLetter = unlimitedTarget.current[i];
 
           if (guessedLetter === targetLetter) {
             row.push({
@@ -315,16 +313,16 @@ export default function Wordle() {
             }
 
             if (correct === 5) {
-              setStats(oldStats => {
+              setStats((oldStats) => {
                 let newStats = structuredClone(oldStats);
                 newStats.unlimited.played++;
                 newStats.unlimited.won++;
                 newStats.unlimited.guessDistribution[unlimitedGuessCount.current]++;
                 (async () => {
-                  await LocalStorage.setItem('wordleStats', JSON.stringify(newStats))
+                  await LocalStorage.setItem("wordleStats", JSON.stringify(newStats));
                 })();
                 return newStats;
-              })
+              });
               unlimitedHasGuessed.current = true;
               let message;
 
@@ -363,14 +361,14 @@ export default function Wordle() {
             })();
 
             if (unlimitedGuessCount.current === 6 && correct !== 5) {
-              setStats(oldStats => {
+              setStats((oldStats) => {
                 let newStats = structuredClone(oldStats);
                 newStats.unlimited.played++;
                 (async () => {
-                  await LocalStorage.setItem('wordleStats', JSON.stringify(newStats))
+                  await LocalStorage.setItem("wordleStats", JSON.stringify(newStats));
                 })();
                 return newStats;
-              })
+              });
               showToast({
                 style: Toast.Style.Failure,
                 title: `The word was "${unlimitedTarget.current.toLocaleUpperCase()}"`,
@@ -391,13 +389,13 @@ export default function Wordle() {
             }
 
             if (correct === 5) {
-              setStats(oldStats => {
+              setStats((oldStats) => {
                 let newStats = structuredClone(oldStats);
                 newStats.daily.played++;
                 newStats.daily.won++;
                 newStats.daily.guessDistribution[guessCount.current]++;
                 (async () => {
-                  await LocalStorage.setItem('wordleStats', JSON.stringify(newStats))
+                  await LocalStorage.setItem("wordleStats", JSON.stringify(newStats));
                 })();
                 return newStats;
               });
@@ -440,14 +438,14 @@ export default function Wordle() {
             })();
 
             if (guessCount.current === 6 && correct !== 5) {
-              setStats(oldStats => {
+              setStats((oldStats) => {
                 let newStats = structuredClone(oldStats);
                 newStats.daily.played++;
                 (async () => {
-                  await LocalStorage.setItem('wordleStats', JSON.stringify(newStats))
+                  await LocalStorage.setItem("wordleStats", JSON.stringify(newStats));
                 })();
                 return newStats;
-              })
+              });
               showToast({
                 style: Toast.Style.Failure,
                 title: `The word was "${target.current.toLocaleUpperCase()}"`,
@@ -496,7 +494,8 @@ export default function Wordle() {
 
   const share = () => {
     let result = [`Wordle ${launchDays.current} ${!hasGuessed.current ? "X" : guessCount.current}/6\n`];
-    if (selectedTab === "unlimited") result = [`Wordle Unlimited ${!unlimitedHasGuessed.current ? "X" : unlimitedGuessCount.current}/6\n`];
+    if (selectedTab === "unlimited")
+      result = [`Wordle Unlimited ${!unlimitedHasGuessed.current ? "X" : unlimitedGuessCount.current}/6\n`];
     for (let row of selectedTab === "unlimited" ? unlimitedBoard : board) {
       if (row[0].letter === "") break;
       let rowExport = "";
@@ -523,21 +522,21 @@ export default function Wordle() {
   };
 
   const giveUp = () => {
-    guessUnlimited.current = ""
+    guessUnlimited.current = "";
     showToast({
       style: Toast.Style.Failure,
       title: `The word was "${unlimitedTarget.current.toLocaleUpperCase()}"`,
     });
     setStats((oldStats) => {
-      let newStats = structuredClone(oldStats)
+      let newStats = structuredClone(oldStats);
       newStats.unlimited.played++;
       (async () => {
-        await LocalStorage.setItem('wordleStats', JSON.stringify(newStats))
+        await LocalStorage.setItem("wordleStats", JSON.stringify(newStats));
       })();
       return newStats;
-    })
+    });
     replay();
-  }
+  };
 
   const replay = () => {
     setUnlimitedBoard(
@@ -556,20 +555,25 @@ export default function Wordle() {
     unlimitedTarget.current = allowedList[Math.floor(Math.random() * allowedList.length)];
     unlimitedHasGuessed.current = false;
     (async () => {
-      await LocalStorage.setItem("wordleUnlimitedBoard", JSON.stringify(Array(6)
-        .fill()
-        .map(() =>
-          Array(5)
+      await LocalStorage.setItem(
+        "wordleUnlimitedBoard",
+        JSON.stringify(
+          Array(6)
             .fill()
-            .map(() => ({
-              letter: "",
-              color: Color.GRAY,
-            }))
-        )));
+            .map(() =>
+              Array(5)
+                .fill()
+                .map(() => ({
+                  letter: "",
+                  color: Color.GRAY,
+                }))
+            )
+        )
+      );
       await LocalStorage.setItem("wordleUnlimitedGuessCount", JSON.stringify(unlimitedGuessCount.current));
       await LocalStorage.setItem("wordleUnlimitedHasGuessed", JSON.stringify(unlimitedHasGuessed.current));
     })();
-  }
+  };
 
   const generateStatistics = () => {
     let generateDistribution = (distribution) => {
@@ -639,63 +643,77 @@ export default function Wordle() {
         fill="white"
         font-family="Helvetica Neue">${distribution["6"]}</text>
 </svg>
-      `
+      `;
 
-      return `![](${svg64(svg)})`
-    }
+      return `![](${svg64(svg)})`;
+    };
 
     return `
 # Wordle Statistics
 
 ## Daily Games
 
-${stats.daily.played === 0 ? "Play a Daily game to unlock Daily Wordle Statistics" : `
+${
+  stats.daily.played === 0
+    ? "Play a Daily game to unlock Daily Wordle Statistics"
+    : `
 ### Statistics
 | Played  | Games Won | Games Lost | Win % |
 |---------|-----------|------------|-------|
-| ${stats.daily.played} |  ${stats.daily.won}  | ${stats.daily.played - stats.daily.won}      | ${Math.round(stats.daily.won / stats.daily.played * 100)}% |
+| ${stats.daily.played} |  ${stats.daily.won}  | ${stats.daily.played - stats.daily.won}      | ${Math.round(
+        (stats.daily.won / stats.daily.played) * 100
+      )}% |
 
 ### Guess Distribution
 
 ${generateDistribution(stats.daily.guessDistribution)}
-`}
+`
+}
 
 ## Unlimited Games
-${stats.unlimited.played === 0 ? "Play an Unlimited game to unlock Unlimited Wordle Statistics" : `
+${
+  stats.unlimited.played === 0
+    ? "Play an Unlimited game to unlock Unlimited Wordle Statistics"
+    : `
 
 ### Statistics
 
 | Played  | Games Won | Games Lost | Win % |
 |---------|-----------|------------|-------|
-| ${stats.unlimited.played} |  ${stats.unlimited.won}  | ${stats.unlimited.played - stats.unlimited.won}      | ${Math.round(stats.unlimited.won / stats.unlimited.played * 100)}% |
+| ${stats.unlimited.played} |  ${stats.unlimited.won}  | ${
+        stats.unlimited.played - stats.unlimited.won
+      }      | ${Math.round((stats.unlimited.won / stats.unlimited.played) * 100)}% |
 
 ### Guess Distribution
 
 ${generateDistribution(stats.unlimited.guessDistribution)}
-`}
+`
+}
 
 
     `;
-  }
+  };
 
   return (
     <List
       isShowingDetail={true}
       onSearchTextChange={updateSearchBar}
       searchText={guess}
-      searchBarPlaceholder={selectedTab === "stats" ? "You cannot guess on the Statistics tab" : "Enter your guess here..."}
+      searchBarPlaceholder={
+        selectedTab === "stats" ? "You cannot guess on the Statistics tab" : "Enter your guess here..."
+      }
       selectedItemId={selectedTab}
       onSelectionChange={(tab) => {
         if (tab === "daily") {
-          setGuess(guessDaily.current)
+          setGuess(guessDaily.current);
         }
         if (tab === "unlimited") {
-          setGuess(guessUnlimited.current)
+          setGuess(guessUnlimited.current);
         }
         if (tab === "stats") {
-          setGuess("")
+          setGuess("");
         }
-        setSelectedTab(tab)
+        setSelectedTab(tab);
       }}
     >
       <List.Item
@@ -713,7 +731,6 @@ ${generateDistribution(stats.unlimited.guessDistribution)}
           </ActionPanel>
         }
       />
-
 
       <List.Item
         title={"Wordle Unlimited"}

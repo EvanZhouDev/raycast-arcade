@@ -528,10 +528,11 @@ export default function Tetris() {
         id="help"
         detail={
           <List.Item.Detail
-            markdown={`# Game Paused\nPress enter to return to the game.${environment.textSize === "large"
-              ? "\n > Large text size detected. You may want to use the Small text size for a larger Tetris board."
-              : ""
-              }\n# Controls\nAfter focusing your cursor in the top search box, simply use WASD and Space to navigate the piece.\n- Using \`A\`/\`D\` moves the piece left or right\n- Using \`W\` rotates the piece clockwise\n- Using \`S\` moves the piece down\n- Space drops the piece completely.\n> Key repeats are disabled by default on MacOS. You can either turn them on, or hold \`Shift\` with the respective control to enable repeat.\n# Rules\n If you do not know how to play Tetris, read about it on Wikipedia [here](https://en.wikipedia.org/wiki/Tetris).`}
+            markdown={`# Game Paused\nPress enter to return to the game.${
+              environment.textSize === "large"
+                ? "\n > Large text size detected. You may want to use the Small text size for a larger Tetris board."
+                : ""
+            }\n# Controls\nAfter focusing your cursor in the top search box, simply use WASD and Space to navigate the piece.\n- Using \`A\`/\`D\` moves the piece left or right\n- Using \`W\` rotates the piece clockwise\n- Using \`S\` moves the piece down\n- Space drops the piece completely.\n> Key repeats are disabled by default on MacOS. You can either turn them on, or hold \`Shift\` with the respective control to enable repeat.\n# Rules\n If you do not know how to play Tetris, read about it on Wikipedia [here](https://en.wikipedia.org/wiki/Tetris).`}
           />
         }
         actions={
