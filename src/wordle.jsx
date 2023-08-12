@@ -522,6 +522,23 @@ export default function Wordle() {
     });
   };
 
+  const giveUp = () => {
+    guessUnlimited.current = ""
+    showToast({
+      style: Toast.Style.Failure,
+      title: `The word was "${unlimitedTarget.current.toLocaleUpperCase()}"`,
+    });
+    setStats((oldStats) => {
+      let newStats = structuredClone(oldStats)
+      newStats.unlimited.played++;
+      (async () => {
+        await LocalStorage.setItem('wordleStats', JSON.stringify(newStats))
+      })();
+      return newStats;
+    })
+    replay();
+  }
+
   const replay = () => {
     setUnlimitedBoard(
       Array(6)
@@ -538,7 +555,6 @@ export default function Wordle() {
     unlimitedGuessCount.current = 0;
     unlimitedTarget.current = allowedList[Math.floor(Math.random() * allowedList.length)];
     unlimitedHasGuessed.current = false;
-    // ! REPLAYING AND THEN REFRESHING DOESN'T UPDATE BOARD???
     (async () => {
       await LocalStorage.setItem("wordleUnlimitedBoard", JSON.stringify(Array(6)
         .fill()
@@ -690,9 +706,9 @@ ${generateDistribution(stats.unlimited.guessDistribution)}
         actions={
           <ActionPanel>
             {guessCount.current === 6 || hasGuessed.current ? (
-              <Action title="Share" onAction={share} />
+              <Action icon={Icon.Clipboard} title="Share" onAction={share} />
             ) : (
-              <Action title="Submit Guess" onAction={submit} />
+              <Action icon={Icon.QuestionMark} title="Submit Guess" onAction={submit} />
             )}
           </ActionPanel>
         }
@@ -708,11 +724,14 @@ ${generateDistribution(stats.unlimited.guessDistribution)}
           <ActionPanel>
             {unlimitedGuessCount.current === 6 || unlimitedHasGuessed.current ? (
               <>
-                <Action title="Replay" onAction={replay} />
-                <Action title="Share" onAction={share} />
+                <Action icon={Icon.RotateClockwise} title="Replay" onAction={replay} />
+                <Action icon={Icon.Clipboard} title="Share" onAction={share} />
               </>
             ) : (
-              <Action title="Submit Guess" onAction={submit} />
+              <>
+                <Action icon={Icon.QuestionMark} title="Submit Guess" onAction={submit} />
+                <Action icon={Icon.XMarkCircle} title="Give Up" onAction={giveUp} />
+              </>
             )}
           </ActionPanel>
         }
