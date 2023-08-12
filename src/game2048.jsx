@@ -1,13 +1,9 @@
 import {
-  List,
   Action,
   ActionPanel,
   Toast,
   showToast,
-  popToRoot,
-  showHUD,
   LocalStorage,
-  Clipboard,
   Icon,
   Detail
 } from "@raycast/api";
@@ -253,6 +249,7 @@ export default function Game2048() {
               <Action
                 title="Shift Left"
                 shortcut={{ modifiers: ["shift"], key: "arrowLeft" }}
+                icon={Icon.ArrowLeft}
                 onAction={() => {
                   setBoard(shiftLeft)
                 }}
@@ -260,6 +257,7 @@ export default function Game2048() {
               <Action
                 title="Shift Right"
                 shortcut={{ modifiers: ["shift"], key: "arrowRight" }}
+                icon={Icon.ArrowRight}
                 onAction={() => {
                   setBoard(shiftRight)
                 }}
@@ -267,6 +265,7 @@ export default function Game2048() {
               <Action
                 title="Shift Up"
                 shortcut={{ modifiers: ["shift"], key: "arrowUp" }}
+                icon={Icon.ArrowUp}
                 onAction={() => {
                   setBoard(shiftUp)
                 }}
@@ -274,12 +273,14 @@ export default function Game2048() {
               <Action
                 title="Shift Down"
                 shortcut={{ modifiers: ["shift"], key: "arrowDown" }}
+                icon={Icon.ArrowDown}
                 onAction={() => {
                   setBoard(shiftDown)
                 }}
               />
               <Action
                 title="Restart"
+                icon={Icon.RotateClockwise}
                 shortcut={{ modifiers: ["cmd", "shift"], key: "r" }}
                 onAction={replay}
               />

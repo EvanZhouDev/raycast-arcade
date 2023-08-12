@@ -1,4 +1,4 @@
-import { Detail, ActionPanel, Action, environment } from "@raycast/api";
+import { Detail, ActionPanel, Action, environment, Icon } from "@raycast/api";
 import { useEffect, useState, useRef } from "react";
 import sound from "sound-play";
 
@@ -311,6 +311,7 @@ export default function ChromeDino() {
       actions={
         <ActionPanel>
           <Action
+            icon={status.current === Status.PLAYING ? Icon.ArrowUp : Icon.RotateClockwise}
             title={status.current === Status.PLAYING ? "Jump" : "Restart"}
             onAction={() => {
               enter();

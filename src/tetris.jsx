@@ -478,6 +478,7 @@ export default function Tetris() {
           <ActionPanel>
             <Action
               title={status.current === Status.PLAYING ? "Pause" : "Restart"}
+              icon={status.current === Status.PLAYING ? Icon.Pause : Icon.RotateClockwise}
               onAction={() => {
                 if (status.current === Status.PLAYING) {
                   setSelectedTab("help");
@@ -495,21 +496,25 @@ export default function Tetris() {
               }}
             />
             <Action
+              icon={Icon.ArrowLeft}
               title="Move Piece Left"
               shortcut={{ modifiers: ["shift"], key: "a" }}
               onAction={() => handleKeyDown("a")}
             />
             <Action
+              icon={Icon.ArrowRight}
               title="Move Piece Right"
               shortcut={{ modifiers: ["shift"], key: "d" }}
               onAction={() => handleKeyDown("d")}
             />
             <Action
+              icon={Icon.ArrowDown}
               title="Move Piece Down"
               shortcut={{ modifiers: ["shift"], key: "s" }}
               onAction={() => handleKeyDown("s")}
             />
             <Action
+              icon={Icon.RotateClockwise}
               title="Rotate Piece"
               shortcut={{ modifiers: ["shift"], key: "w" }}
               onAction={() => handleKeyDown("w")}
@@ -523,16 +528,16 @@ export default function Tetris() {
         id="help"
         detail={
           <List.Item.Detail
-            markdown={`# Game Paused\nPress enter to return to the game.${
-              environment.textSize === "large"
-                ? "\n > Large text size detected. You may want to use the Small text size for a larger Tetris board."
-                : ""
-            }\n# Controls\nAfter focusing your cursor in the top search box, simply use WASD and Space to navigate the piece.\n- Using \`A\`/\`D\` moves the piece left or right\n- Using \`W\` rotates the piece clockwise\n- Using \`S\` moves the piece down\n- Space drops the piece completely.\n> Key repeats are disabled by default on MacOS. You can either turn them on, or hold \`Shift\` with the respective control to enable repeat.\n# Rules\n If you do not know how to play Tetris, read about it on Wikipedia [here](https://en.wikipedia.org/wiki/Tetris).`}
+            markdown={`# Game Paused\nPress enter to return to the game.${environment.textSize === "large"
+              ? "\n > Large text size detected. You may want to use the Small text size for a larger Tetris board."
+              : ""
+              }\n# Controls\nAfter focusing your cursor in the top search box, simply use WASD and Space to navigate the piece.\n- Using \`A\`/\`D\` moves the piece left or right\n- Using \`W\` rotates the piece clockwise\n- Using \`S\` moves the piece down\n- Space drops the piece completely.\n> Key repeats are disabled by default on MacOS. You can either turn them on, or hold \`Shift\` with the respective control to enable repeat.\n# Rules\n If you do not know how to play Tetris, read about it on Wikipedia [here](https://en.wikipedia.org/wiki/Tetris).`}
           />
         }
         actions={
           <ActionPanel>
             <Action
+              icon={Icon.Play}
               title="Unpause"
               onAction={() => {
                 setSelectedTab("game");
