@@ -307,7 +307,7 @@ ${rows.join("\n")}
                 if (status === Status.GAME_OVER) {
                   setGrid(Array.from({ length: ROWS }, () => Array.from({ length: COLS }, () => "  ")));
                   setStatus(Status.PLAYING);
-
+                  setScore(0);
                   food.current = randomFood(snake);
                   setSnake([
                     { row: Math.floor(ROWS / 2), col: Math.floor(COLS / 2) },
