@@ -52,7 +52,7 @@ How many points can you get?
     },
     {
       name: "2048",
-      highlights: ["SVG", "Color", "Classic", "Has Audio"],
+      highlights: ["SVG", "Color", "Classic"],
       author: "EvanZhouDev",
       wikipedia: "2048_(video_game)",
       markdown: `
@@ -63,6 +63,20 @@ A classic number game, beautifully replicated in Raycast.
 Merge numbers with ⇪ + ←↑→↓ and try to get the 2048 tile!
             `,
       commandName: "game2048",
+    },
+    {
+      name: "Snake",
+      highlights: ["ASCII", "High-Refresh", "Classic", "Modifier-Less"],
+      author: "EvanZhouDev",
+      wikipedia: "Snake_(video_game_genre)",
+      markdown: `
+# Snake
+
+Move a snake around with WASD to eat apples!
+
+Make sure not to bump into walls or your tail, or it's Game Over!
+            `,
+      commandName: "snake",
     },
   ];
   return (
