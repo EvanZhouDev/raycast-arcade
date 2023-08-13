@@ -21,3 +21,7 @@ Challenge your vocabulary and logic with Wordle in Raycast. With nearly the exac
 ### 🔢 2048
 
 Play the number-merging game, now beautifully recreated in Raycast! See if you can get the coveted 2048 tile, or even higher!
+
+### 🐍 Snake
+
+Eat apples and grow! Play classic snake with WASD, and see how far you can get.
